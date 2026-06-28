@@ -87,21 +87,5 @@ The Wanderer · The Ritualist · The Hedonist · The Introspect · The Architect
 ### Share export
 `html2canvas` captures the card node at `scale: 2` (retina) → 1200×675 PNG. A "MADE WITH ◐ SOUNDSELF" watermark is toggled on **only** during capture, so it appears in the export but not the live UI. Download works everywhere; Copy uses the Clipboard API; the native **Web Share** sheet appears when `navigator.canShare({ files })` is supported (mobile).
 
----
-
-## Design direction
-
-**Dark-first, grain-overlay atmosphere with a Clash Display / IBM Plex Mono pairing** — chosen to feel like a cinematic record sleeve rather than generic AI gradient slop, with each archetype driving its own moody palette so every card looks distinct and screenshot-ready.
-
----
-
-## What I'd improve with more time
-
-- **Code-split `html2canvas`** (it dominates the ~497 kB bundle); lazy-load it only when an export is triggered.
-- Replace `html2canvas` with `satori`/`@vercel/og`-style server rendering for pixel-perfect fonts and guaranteed gradient fidelity.
-- Real **token persistence + silent refresh** UX (currently refreshes on demand; a proactive timer would be smoother).
-- **Audio-features fallback**: Spotify has restricted `/audio-features` for newer apps — add a heuristic estimator from artist genres when the endpoint 403s.
-- Unit tests around `algorithm.js` and `persona.js` (the verification was run as a one-off script).
-- A square **1080×1080** export variant for Instagram (the `Card` already accepts a `format` prop; just needs a UI toggle).
-- Accessibility pass: focus rings, reduced-motion variants, and ARIA on the controls.
+, and ARIA on the controls.
 ```
