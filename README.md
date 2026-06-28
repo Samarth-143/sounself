@@ -87,5 +87,3 @@ The Wanderer · The Ritualist · The Hedonist · The Introspect · The Architect
 ### Share export
 `html2canvas` captures the card node at `scale: 2` (retina) → 1200×675 PNG. A "MADE WITH ◐ SOUNDSELF" watermark is toggled on **only** during capture, so it appears in the export but not the live UI. Download works everywhere; Copy uses the Clipboard API; the native **Web Share** sheet appears when `navigator.canShare({ files })` is supported (mobile).
 
-, and ARIA on the controls.
-```
