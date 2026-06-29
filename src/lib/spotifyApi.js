@@ -227,6 +227,7 @@ export async function fetchUserData(timeRange = 'medium_term', onProgress = () =
     genres: a.genres || [],
     popularity: a.popularity,
     followers: a.followers?.total ?? null,
+    image: a.images?.[a.images.length - 1]?.url || a.images?.[0]?.url || null,
   }))
 
   const recentlyPlayed = (recentRes.items || []).map((i) => ({

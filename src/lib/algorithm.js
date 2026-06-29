@@ -19,8 +19,6 @@ const stddev = (arr) => {
 
 // Shannon entropy of a frequency map, normalized against a fixed reference
 // (REF distinct genres) so that "more genres, evenly spread" => higher score.
-// Normalizing by the number of *present* categories would make any even
-// distribution score 1.0, erasing the distinction we actually want.
 const ENTROPY_REF = 10
 function shannonEntropy(counts) {
   const values = Object.values(counts)
@@ -54,7 +52,6 @@ function buildDnaCounts(topArtists, topTracks = []) {
   }
 
   // Fallback: count how many of your top tracks each (primary) artist leads.
-  // This gives a meaningful, varied share instead of near-equal rank weights.
   const artistCounts = {}
   for (const t of topTracks) {
     const name = t.artists?.[0]?.name
@@ -77,8 +74,6 @@ export function topGenres(counts, n = 6) {
   const top = Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, n)
-  // Normalize against the shown slices so the % labels sum to ~100 and match
-  // the donut segment sizes (rather than being a tiny share of everything).
   const shownTotal = top.reduce((sum, [, v]) => sum + v, 0) || 1
   return top.map(([name, value]) => ({
     name,
@@ -102,7 +97,7 @@ export function computeMetrics(data) {
   const recentIds = recentlyPlayed.map((t) => t.id)
 
   const { counts: genreCounts, mode: dnaMode } = buildDnaCounts(topArtists, topTracks)
-  const diversity = shannonEntropy(genreCounts) // 0..1
+  const diversity = shannonEntropy(genreCounts)
   const valence = clamp01(avgFeature(topTrackIds, audioFeatures, 'valence'))
   const energy = clamp01(avgFeature(topTrackIds, audioFeatures, 'energy'))
   const danceability = clamp01(avgFeature(topTrackIds, audioFeatures, 'danceability'))
@@ -110,20 +105,16 @@ export function computeMetrics(data) {
   const instrumentalness = clamp01(avgFeature(topTrackIds, audioFeatures, 'instrumentalness'))
   const speechiness = clamp01(avgFeature(topTrackIds, audioFeatures, 'speechiness'))
 
-  // Tempo: normalize spread. BPM 60..180 -> variance proxy.
   const tempos = topTrackIds.map((id) => audioFeatures[id]?.tempo).filter((v) => typeof v === 'number')
   const tempoMean = mean(tempos)
-  const tempoVariance = clamp01(stddev(tempos) / 40) // ~40 BPM stddev => maxed
+  const tempoVariance = clamp01(stddev(tempos) / 40)
   const tempoNorm = clamp01((tempoMean - 60) / 120)
 
-  // Loudness: dB -60..0 -> 0..1
   const loudnessVals = topTrackIds.map((id) => audioFeatures[id]?.loudness).filter((v) => typeof v === 'number')
   const loudness = clamp01((mean(loudnessVals) + 60) / 60)
 
-  // Mainstreamness: avg track popularity (0..100 -> 0..1).
   const mainstreamness = clamp01(mean(topTracks.map((t) => t.popularity ?? 50)) / 100)
 
-  // Recency overlap: how much of what you spin lately is in your all-time top.
   const overlap = recentIds.length
     ? recentIds.filter((id) => topTrackIds.includes(id)).length / recentIds.length
     : 0
@@ -154,17 +145,13 @@ export function computeMetrics(data) {
 // Nearest-ideal classifier. Each archetype owns an ideal point in normalized
 // feature space; we score by negative weighted squared distance and pick the
 // closest. Pure: same metrics in -> same ranking out.
-//
-// Feature order: [diversity, mainstreamness, recencyOverlap, valence, energy,
-//                 danceability, acousticness, instrumentalness, tempoVar, speech]
 
-const FEATURE_KEYS = [
+export const FEATURE_KEYS = [
   'diversity', 'mainstreamness', 'recencyOverlap', 'valence', 'energy',
   'danceability', 'acousticness', 'instrumentalness', 'tempoVariance', 'speechiness',
 ]
 
-// Importance per feature, per archetype — heavier on each archetype's "tell".
-const IDEALS = {
+export const IDEALS = {
   //            div   main  rec   val   ene   dnc   aco   ins   tvar  spe
   wanderer:   { v: [1.00, 0.20, 0.40, 0.50, 0.55, 0.50, 0.45, 0.30, 0.36, 0.10], w: [2.2, 2.0, 1, 1, 1, 1, 1, 1, 1, 1] },
   ritualist:  { v: [0.30, 0.55, 0.90, 0.45, 0.50, 0.50, 0.50, 0.20, 0.12, 0.08], w: [1.6, 1, 2.4, 1, 1, 1, 1, 1, 1, 1] },
@@ -188,7 +175,6 @@ export function scoreArchetypes(m) {
         dist += w[i] * (x[i] - v[i]) ** 2
         wsum += w[i]
       }
-      // score in 0..1: 1 = perfect match. (negative distance, normalized)
       return { id, score: 1 - dist / wsum }
     })
     .sort((a, b) => b.score - a.score)
@@ -199,7 +185,6 @@ export function scoreArchetypes(m) {
 
 export function computeMoodSpectrum(m) {
   return {
-    // overall position on Melancholy <-> Euphoric axis
     position: clamp01(m.valence * 0.6 + m.energy * 0.4),
     bars: [
       { key: 'acoustic', label: 'Acoustic', value: clamp01(m.acousticness) },
@@ -243,6 +228,19 @@ export function computeClock(recentlyPlayed = []) {
   return { hours, total, peakHour, label: vibe ? vibe.label : 'Free Spirit' }
 }
 
+// 7x24 heatmap: day of week (0=Mon..6=Sun) x hour (0..23).
+export function computeHeatmap(recentlyPlayed = []) {
+  const grid = Array.from({ length: 7 }, () => new Array(24).fill(0))
+  for (const r of recentlyPlayed) {
+    if (!r.playedAt) continue
+    const d = new Date(r.playedAt)
+    if (Number.isNaN(d.getTime())) continue
+    const day = (d.getDay() + 6) % 7 // convert Sun=0..Sat=6 to Mon=0..Sun=6
+    grid[day][d.getHours()] += 1
+  }
+  return grid
+}
+
 /* --------------------------------- stats --------------------------------- */
 // Punchy headline numbers, all from metadata Spotify still returns.
 
@@ -280,7 +278,6 @@ export function computeStats(data, metrics) {
 // Softmax over the ranked scores -> a primary % and a secondary streak.
 
 export function computeBlend(ranked) {
-  // Softmax over the top 3 only, sharpened so the primary clearly dominates.
   const top = ranked.slice(0, 3)
   const temp = 0.045
   const base = top[top.length - 1].score
@@ -296,8 +293,6 @@ export function computeBlend(ranked) {
 /* ------------------------------- top-level ------------------------------- */
 
 export function analyze(data) {
-  // When Spotify withholds audio features (403 for new apps), estimate them
-  // deterministically from available metadata so the analysis still works.
   const estimatedAudio = audioFeaturesMissing(data.audioFeatures, data.topTracks)
   const workingData = estimatedAudio
     ? { ...data, audioFeatures: estimateAudioFeatures(data) }
@@ -309,6 +304,7 @@ export function analyze(data) {
   const genres = topGenres(metrics.genreCounts, 6)
   const mood = computeMoodSpectrum(metrics)
   const clock = computeClock(data.recentlyPlayed)
+  const heatmap = computeHeatmap(data.recentlyPlayed)
   const stats = computeStats(workingData, metrics)
   const blend = computeBlend(ranked)
 
@@ -319,9 +315,10 @@ export function analyze(data) {
     genres,
     mood,
     clock,
+    heatmap,
     stats,
     blend,
-    dnaMode: metrics.dnaMode, // 'genre' | 'artist'
+    dnaMode: metrics.dnaMode,
     estimatedAudio,
     genresAvailable: hasRealGenres(data.topArtists || []),
     displayName: data.displayName || 'Anonymous Listener',
@@ -330,12 +327,19 @@ export function analyze(data) {
       name: t.name,
       artist: t.artists?.[0]?.name || 'Unknown',
     })),
-    // Top tracks for the playable list (real Spotify IDs in live mode).
     tracks: data.topTracks.slice(0, 10).map((t) => ({
       id: t.id,
       name: t.name,
       artist: t.artists?.[0]?.name || 'Unknown',
       image: t.image || null,
     })),
+    topArtists: (data.topArtists || []).slice(0, 10).map((a) => ({
+      id: a.id,
+      name: a.name,
+      genres: a.genres || [],
+      popularity: a.popularity ?? 50,
+      image: a.image || null,
+    })),
+    recentlyPlayed: data.recentlyPlayed || [],
   }
 }

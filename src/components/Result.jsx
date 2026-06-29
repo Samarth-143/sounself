@@ -6,6 +6,9 @@ import { motion } from 'framer-motion'
 import Card from './Card.jsx'
 import Share from './Share.jsx'
 import TopTracks from './TopTracks.jsx'
+import TopArtists from './TopArtists.jsx'
+import RadarChart from './RadarChart.jsx'
+import HeatmapCalendar from './HeatmapCalendar.jsx'
 import { Shuffle, RotateCcw } from './icons.jsx'
 
 const RANGES = [
@@ -128,6 +131,15 @@ export default function Result({
 
       {/* playable top tracks */}
       <TopTracks tracks={analysis.tracks} accent={accent} />
+
+      {/* radar + top artists */}
+      <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <RadarChart metrics={analysis.metrics} ranked={analysis.ranked} accent={accent} />
+        <TopArtists artists={analysis.topArtists} accent={accent} />
+      </div>
+
+      {/* listening heatmap */}
+      <HeatmapCalendar heatmap={analysis.heatmap} accent={accent} />
     </div>
   )
 }
