@@ -9,7 +9,7 @@ const fmt = (ms) => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
-export default function NowPlaying({ playback, accent, onToggle, onSeek }) {
+export default function NowPlaying({ playback, accent, onToggle, onSeek, onPrev, onNext }) {
   const [, force] = useState(0)
   useEffect(() => {
     const id = setInterval(() => force((n) => n + 1), 250)
@@ -68,7 +68,7 @@ export default function NowPlaying({ playback, accent, onToggle, onSeek }) {
       {/* Controls */}
       <div className="flex items-center justify-center gap-8">
         <button
-          onClick={() => onSeek && onSeek(Math.max(0, position - 15000))}
+          onClick={onPrev}
           className="flex items-center justify-center text-bone transition hover:scale-110"
           aria-label="Previous"
         >
@@ -84,7 +84,7 @@ export default function NowPlaying({ playback, accent, onToggle, onSeek }) {
         </button>
 
         <button
-          onClick={() => onSeek && onSeek(Math.min(duration, position + 15000))}
+          onClick={onNext}
           className="flex items-center justify-center text-bone transition hover:scale-110"
           aria-label="Next"
         >

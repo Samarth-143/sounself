@@ -105,7 +105,16 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
             {list.map((t, i) => {
               const active = selected === i
               const playing = isRowPlaying(i)
-              return (
+  const handlePrev = async () => {
+    if (selected === null || selected <= 0) return
+    await handleSelect(selected - 1)
+  }
+  const handleNext = async () => {
+    if (selected === null || selected >= list.length - 1) return
+    await handleSelect(selected + 1)
+  }
+
+  return (
                 <button
                   key={`${t.id}-${i}`}
                   onClick={() => handleSelect(i)}
@@ -169,6 +178,8 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
                     accent={accent}
                     onToggle={player.toggle}
                     onSeek={player.seek}
+                    onPrev={handlePrev}
+                    onNext={handleNext}
                   />
                 ) : (
                   <>
