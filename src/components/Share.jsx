@@ -8,7 +8,10 @@ import { Download, Copy, Share2, Check, Loader2 } from './icons.jsx'
 
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
 
-export default function Share({ cardRef, setCapturing, fileBase = 'soundself', accent = '#ff5a3c', onBeforeCapture, onAfterCapture }) {
+const CARD_W = 1200
+const CARD_H = 675
+
+export default function Share({ cardRef, setCapturing, fileBase = 'soundself', accent = '#ff5a3c' }) {
   const [busy, setBusy] = useState(null)
   const [done, setDone] = useState(null)
   const [error, setError] = useState('')
@@ -19,7 +22,6 @@ export default function Share({ cardRef, setCapturing, fileBase = 'soundself', a
   async function capture() {
     const node = cardRef.current
     if (!node) throw new Error('Card not ready yet.')
-    if (typeof onBeforeCapture === 'function') onBeforeCapture()
     setCapturing(true)
     await nextFrame()
     try {
@@ -28,15 +30,22 @@ export default function Share({ cardRef, setCapturing, fileBase = 'soundself', a
         useCORS: true,
         backgroundColor: null,
         logging: false,
-        width: node.offsetWidth,
-        height: node.offsetHeight,
+        width: CARD_W,
+        height: CARD_H,
+        onclone: (clonedDoc, clonedNode) => {
+          const wrap = clonedNode.parentElement
+          if (wrap) {
+            wrap.style.transform = 'none'
+            wrap.style.width = `${CARD_W}px`
+            wrap.style.height = `${CARD_H}px`
+          }
+        },
       })
       return await new Promise((resolve, reject) =>
         canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not encode PNG.'))), 'image/png')
       )
     } finally {
       setCapturing(false)
-      if (typeof onAfterCapture === 'function') onAfterCapture()
     }
   }
 
