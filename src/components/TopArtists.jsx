@@ -8,11 +8,6 @@ export default function TopArtists({ artists = [], accent = '#ff5a3c' }) {
   const list = artists.slice(0, 10)
   if (!list.length) return null
 
-  // Diagnostic: log first artist's raw popularity to console
-  if (list[0] && typeof list[0].popularity === 'number') {
-    console.log('[TopArtists] Raw popularity sample:', list[0].name, list[0].popularity)
-  }
-
   return (
     <div className="mx-auto mt-10 w-full max-w-[1100px]">
       <div className="mb-3 flex items-center gap-2">

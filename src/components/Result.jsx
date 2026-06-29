@@ -17,23 +17,26 @@ const RANGES = [
   { id: 'long_term', label: 'All Time' },
 ]
 
-function ScaledCard({ children, baseW = 1200, baseH = 675 }) {
+const CARD_W = 1200
+const CARD_H = 675
+
+function ScaledCard({ children }) {
   const wrapRef = useRef(null)
   const [scale, setScale] = useState(1)
 
   useEffect(() => {
     const compute = () => {
-      const w = wrapRef.current?.offsetWidth || baseW
-      setScale(Math.min(1, w / baseW))
+      const w = wrapRef.current?.offsetWidth || CARD_W
+      setScale(Math.min(1, w / CARD_W))
     }
     compute()
     window.addEventListener('resize', compute)
     return () => window.removeEventListener('resize', compute)
-  }, [baseW])
+  }, [])
 
   return (
-    <div ref={wrapRef} className="w-full" style={{ height: baseH * scale }}>
-      <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: baseW, height: baseH }}>
+    <div ref={wrapRef} className="w-full" style={{ height: CARD_H * scale }}>
+      <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: CARD_W, height: CARD_H }}>
         {children}
       </div>
     </div>
@@ -51,6 +54,7 @@ export default function Result({
   busyRange,
 }) {
   const cardRef = useRef(null)
+  const captureRef = useRef(null)
   const [capturing, setCapturing] = useState(false)
   const accent = analysis.archetype.palette.glow
 
@@ -102,7 +106,7 @@ export default function Result({
         </div>
       </div>
 
-      {/* the card */}
+      {/* the card — visible scaled version */}
       <motion.div
         key={`${analysis.archetype.id}-${timeRange}`}
         initial={{ opacity: 0, y: 16, scale: 0.99 }}
@@ -116,10 +120,26 @@ export default function Result({
         </ScaledCard>
       </motion.div>
 
-      {/* share controls */}
+      {/* hidden full-size card for clean html2canvas capture */}
+      <div
+        aria-hidden
+        style={{
+          position: 'fixed',
+          left: '-9999px',
+          top: 0,
+          width: CARD_W,
+          height: CARD_H,
+          zIndex: -1,
+          pointerEvents: 'none',
+        }}
+      >
+        <Card ref={captureRef} analysis={analysis} persona={persona} capturing={capturing} />
+      </div>
+
+      {/* share controls — capture the hidden full-size card */}
       <div className="mt-8">
         <Share
-          cardRef={cardRef}
+          cardRef={captureRef}
           setCapturing={setCapturing}
           fileBase={analysis.archetype.name}
           accent={accent}
