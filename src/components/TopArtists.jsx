@@ -8,6 +8,11 @@ export default function TopArtists({ artists = [], accent = '#ff5a3c' }) {
   const list = artists.slice(0, 10)
   if (!list.length) return null
 
+  // Diagnostic: log first artist's raw popularity to console
+  if (list[0] && typeof list[0].popularity === 'number') {
+    console.log('[TopArtists] Raw popularity sample:', list[0].name, list[0].popularity)
+  }
+
   return (
     <div className="mx-auto mt-10 w-full max-w-[1100px]">
       <div className="mb-3 flex items-center gap-2">
@@ -47,14 +52,30 @@ export default function TopArtists({ artists = [], accent = '#ff5a3c' }) {
             </div>
             <div className="mt-auto pt-2">
               <div className="flex items-center justify-between text-[10px] tabular-nums text-ash/70">
-                <span>Popularity</span>
-                <span>{a.popularity ?? 50}</span>
+                <span className="uppercase tracking-wide">Pop.</span>
+                <span className="font-medium">{a.popularity ?? 50}</span>
               </div>
-              <div className="mt-1 h-1 rounded-full bg-white/10">
+              <div className="mt-1.5 flex h-1.5 items-center gap-0.5">
+                <div className="h-full flex-1 rounded-full bg-white/8" />
+                {[25, 50, 75].map((mark) => (
+                  <div key={mark} className="h-full w-px bg-white/10" />
+                ))}
+                <div className="h-full flex-1 rounded-full bg-white/8" />
+              </div>
+              <div className="mt-1 h-1.5 rounded-full bg-white/10">
                 <div
-                  className="h-1 rounded-full"
-                  style={{ width: `${a.popularity ?? 50}%`, background: accent }}
+                  className="h-1.5 rounded-full transition-all"
+                  style={{
+                    width: `${a.popularity ?? 50}%`,
+                    background: accent,
+                    opacity: 0.5 + ((a.popularity ?? 50) / 100) * 0.5,
+                  }}
                 />
+              </div>
+              <div className="mt-0.5 flex justify-between text-[8px] tabular-nums text-ash/40">
+                <span>0</span>
+                <span>50</span>
+                <span>100</span>
               </div>
             </div>
           </motion.div>
