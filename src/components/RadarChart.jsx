@@ -24,9 +24,9 @@ export default function RadarChart({ metrics, ranked, accent = '#ff5a3c' }) {
 
   const points = useMemo(() => {
     if (!ideals) return null
-    const cx = 140
-    const cy = 140
-    const r = 100
+  const cx = 170
+  const cy = 170
+  const r = 130
     const n = FEATURE_KEYS.length
     const userPath = []
     const idealPath = []
@@ -53,7 +53,7 @@ export default function RadarChart({ metrics, ranked, accent = '#ff5a3c' }) {
 
   return (
     <div className="flex flex-col items-center">
-      <svg viewBox="0 0 320 320" className="h-72 w-72">
+      <svg viewBox="0 0 360 360" className="h-96 w-96">
         {/* grid */}
         {gridLevels.map((lvl) => (
           <polygon

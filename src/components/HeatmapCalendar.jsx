@@ -41,6 +41,7 @@ export default function HeatmapCalendar({ heatmap = null, accent = '#ff5a3c' }) 
           <h2 className="font-display text-lg font-semibold">Listening Calendar</h2>
         </div>
         <span className="text-[10px] uppercase tracking-[0.18em] text-ash/70">7 days × 24 hrs</span>
+        <span className="text-[10px] text-ash/50">Hour markers: 0, 6, 12, 18, 23</span>
       </div>
       <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/[0.03] p-3">
         <div className="flex min-w-max flex-col gap-1">

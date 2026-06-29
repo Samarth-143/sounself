@@ -13,6 +13,7 @@ export default function TopArtists({ artists = [], accent = '#ff5a3c' }) {
       <div className="mb-3 flex items-center gap-2">
         <Music className="h-4 w-4" style={{ color: accent }} />
         <h2 className="font-display text-lg font-semibold">Your Top Artists</h2>
+        <span className="text-[10px] text-ash/50">Popularity 0–100 (Spotify score)</span>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {list.map((a, i) => (
