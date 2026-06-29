@@ -98,7 +98,7 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
         </div>
       )}
 
-      <div className="flex flex-col gap-6 md:flex-row">
+      <div className="flex flex-col gap-6 md:flex-row md:items-stretch">
         {/* Track list */}
         <div className="w-full md:w-[55%]">
           <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
@@ -162,7 +162,7 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
               transition={{ duration: 0.3 }}
               className="w-full md:w-[45%]"
             >
-              <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
+              <div className="flex h-full flex-col justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
                 {useSdk && !error && player.playback ? (
                   <NowPlaying
                     playback={player.playback}
