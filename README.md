@@ -112,12 +112,4 @@ The Wanderer · The Ritualist · The Hedonist · The Introspect · The Architect
 ### Share export
 `html2canvas` captures the card node at `scale: 2` (retina) → 1200×675 PNG. A "MADE WITH ◐ SOUNDSELF" watermark is toggled on **only** during capture, so it appears in the export but not the live UI. Download works everywhere; Copy uses the Clipboard API; the native **Web Share** sheet appears when `navigator.canShare({ files })` is supported (mobile).
 
----
 
-## What I'd improve with more time
-
-- **Code-split `html2canvas`** (it dominates the ~497 kB bundle); lazy-load it only when an export is triggered.
-- Replace `html2canvas` with `satori`/`@vercel/og`-style server rendering for pixel-perfect fonts and guaranteed gradient fidelity.
-- **Unit tests** around `algorithm.js` and `persona.js` (the verification was run as a one-off script).
-- **Accessibility pass**: focus rings, reduced-motion variants, and ARIA on the controls.
-- **Listening clock tooltips**: add hover labels to each radial spoke showing the play count for that hour.
