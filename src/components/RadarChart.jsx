@@ -53,7 +53,7 @@ export default function RadarChart({ metrics, ranked, accent = '#ff5a3c' }) {
 
   return (
     <div className="flex flex-col items-center">
-      <svg viewBox="0 0 280 280" className="h-64 w-64">
+      <svg viewBox="0 0 320 320" className="h-72 w-72">
         {/* grid */}
         {gridLevels.map((lvl) => (
           <polygon
@@ -63,30 +63,37 @@ export default function RadarChart({ metrics, ranked, accent = '#ff5a3c' }) {
               return `${cx + r * lvl * Math.cos(angle)},${cy + r * lvl * Math.sin(angle)}`
             }).join(' ')}
             fill="none"
-            stroke="rgba(255,255,255,0.08)"
+            stroke="rgba(255,255,255,0.12)"
             strokeWidth="1"
           />
         ))}
         {/* axes */}
         {Array.from({ length: n }).map((_, i) => {
           const angle = (Math.PI * 2 * i) / n - Math.PI / 2
+          const ex = cx + r * Math.cos(angle)
+          const ey = cy + r * Math.sin(angle)
           return (
-            <line
-              key={i}
-              x1={cx}
-              y1={cy}
-              x2={cx + r * Math.cos(angle)}
-              y2={cy + r * Math.sin(angle)}
-              stroke="rgba(255,255,255,0.1)"
-              strokeWidth="1"
-            />
+            <g key={i}>
+              <line x1={cx} y1={cy} x2={ex} y2={ey} stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+              <text
+                x={ex + 8 * Math.cos(angle)}
+                y={ey + 8 * Math.sin(angle)}
+                fill="rgba(255,255,255,0.65)"
+                fontSize="9"
+                fontFamily="IBM Plex Mono, monospace"
+                textAnchor="middle"
+                dominantBaseline="middle"
+              >
+                {LABELS[i].short}
+              </text>
+            </g>
           )
         })}
         {/* ideal outline */}
         <path
           d={pathD(idealPath)}
           fill="none"
-          stroke="rgba(255,255,255,0.25)"
+          stroke="rgba(255,255,255,0.3)"
           strokeWidth="1.5"
           strokeDasharray="4 4"
         />
@@ -94,27 +101,20 @@ export default function RadarChart({ metrics, ranked, accent = '#ff5a3c' }) {
         <motion.path
           d={pathD(userPath)}
           fill={accent}
-          fillOpacity="0.2"
+          fillOpacity="0.25"
           stroke={accent}
-          strokeWidth="2"
+          strokeWidth="2.5"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
         />
         {/* user dots */}
         {userPath.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3" fill={accent} />
+          <circle key={i} cx={p.x} cy={p.y} r="3.5" fill={accent} />
         ))}
         {/* center */}
         <circle cx={cx} cy={cy} r="2" fill="rgba(255,255,255,0.4)" />
       </svg>
-      <div className="mt-3 grid grid-cols-5 gap-x-4 gap-y-1 text-center">
-        {LABELS.map((l) => (
-          <div key={l.key} className="text-[10px] uppercase tracking-wide text-ash/80">
-            {l.short}
-          </div>
-        ))}
-      </div>
     </div>
   )
 }

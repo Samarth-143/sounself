@@ -21,7 +21,7 @@ export default function TopArtists({ artists = [], accent = '#ff5a3c' }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.03 }}
-            className="flex flex-col items-center rounded-xl border border-white/10 bg-white/[0.03] p-3 text-center"
+            className="flex flex-col rounded-xl border border-white/10 bg-white/[0.03] p-3"
           >
             <div className="mb-2 flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10">
               {a.image ? (
@@ -30,9 +30,9 @@ export default function TopArtists({ artists = [], accent = '#ff5a3c' }) {
                 <span className="text-lg font-bold text-ash/40">{a.name?.[0]?.toUpperCase() || '?'}</span>
               )}
             </div>
-            <div className="min-w-0 px-1">
-              <div className="truncate text-sm font-medium text-bone">{a.name}</div>
-              <div className="mt-1 flex flex-wrap justify-center gap-1">
+            <div className="min-w-0">
+              <div className="truncate text-sm font-medium text-bone" title={a.name}>{a.name}</div>
+              <div className="mt-1 flex flex-wrap gap-1">
                 {(a.genres || []).slice(0, 2).map((g) => (
                   <span
                     key={g}
@@ -44,15 +44,16 @@ export default function TopArtists({ artists = [], accent = '#ff5a3c' }) {
                 ))}
               </div>
             </div>
-            <div className="mt-2 w-full">
-              <div className="h-1 rounded-full bg-white/10">
+            <div className="mt-auto pt-2">
+              <div className="flex items-center justify-between text-[10px] tabular-nums text-ash/70">
+                <span>Popularity</span>
+                <span>{a.popularity ?? 50}</span>
+              </div>
+              <div className="mt-1 h-1 rounded-full bg-white/10">
                 <div
                   className="h-1 rounded-full"
                   style={{ width: `${a.popularity ?? 50}%`, background: accent }}
                 />
-              </div>
-              <div className="mt-1 text-right text-[10px] tabular-nums text-ash/70">
-                {a.popularity ?? 50}
               </div>
             </div>
           </motion.div>

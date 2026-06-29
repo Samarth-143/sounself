@@ -30,16 +30,16 @@ const TRACK_TITLES = [
 // overlap = recency/top overlap (0..1).
 
 const PROFILES = {
-  wanderer: { f: { valence: 0.5, energy: 0.55, dance: 0.5, acoustic: 0.45, instr: 0.3, speech: 0.1, tempo: 120, tempoSpread: 25 }, pop: [10, 45], div: 'high', overlap: 0.4 },
-  ritualist: { f: { valence: 0.45, energy: 0.5, dance: 0.5, acoustic: 0.5, instr: 0.2, speech: 0.08, tempo: 110, tempoSpread: 8 }, pop: [40, 70], div: 'low', overlap: 0.85 },
-  hedonist: { f: { valence: 0.82, energy: 0.85, dance: 0.88, acoustic: 0.1, instr: 0.05, speech: 0.12, tempo: 124, tempoSpread: 8 }, pop: [55, 90], div: 'mid', overlap: 0.5 },
-  introspect: { f: { valence: 0.3, energy: 0.25, dance: 0.35, acoustic: 0.8, instr: 0.2, speech: 0.06, tempo: 92, tempoSpread: 10 }, pop: [10, 40], div: 'mid', overlap: 0.5 },
-  architect: { f: { valence: 0.45, energy: 0.6, dance: 0.5, acoustic: 0.2, instr: 0.85, speech: 0.04, tempo: 128, tempoSpread: 45 }, pop: [20, 55], div: 'mid', overlap: 0.5 },
-  anarchist: { f: { valence: 0.2, energy: 0.92, dance: 0.5, acoustic: 0.08, instr: 0.25, speech: 0.2, tempo: 150, tempoSpread: 50 }, pop: [25, 60], div: 'mid', overlap: 0.45 },
-  romantic: { f: { valence: 0.85, energy: 0.4, dance: 0.45, acoustic: 0.78, instr: 0.1, speech: 0.05, tempo: 84, tempoSpread: 9 }, pop: [40, 75], div: 'mid', overlap: 0.55 },
-  zeitgeist: { f: { valence: 0.65, energy: 0.7, dance: 0.72, acoustic: 0.15, instr: 0.05, speech: 0.14, tempo: 118, tempoSpread: 12 }, pop: [80, 98], div: 'mid', overlap: 0.15 },
-  ghost: { f: { valence: 0.35, energy: 0.45, dance: 0.3, acoustic: 0.55, instr: 0.9, speech: 0.03, tempo: 100, tempoSpread: 14 }, pop: [3, 30], div: 'mid', overlap: 0.5 },
-  catalyst: { f: { valence: 0.5, energy: 0.5, dance: 0.5, acoustic: 0.5, instr: 0.5, speech: 0.1, tempo: 120, tempoSpread: 22 }, pop: [40, 65], div: 'high', overlap: 0.5 },
+  wanderer:   { f: { valence: 0.5, energy: 0.55, dance: 0.5, acoustic: 0.45, instr: 0.3, speech: 0.1, tempo: 120, tempoSpread: 25 }, pop: [5, 65], div: 'high', overlap: 0.4 },
+  ritualist:  { f: { valence: 0.45, energy: 0.5, dance: 0.5, acoustic: 0.5, instr: 0.2, speech: 0.08, tempo: 110, tempoSpread: 8 }, pop: [25, 85], div: 'low', overlap: 0.85 },
+  hedonist:   { f: { valence: 0.82, energy: 0.85, dance: 0.88, acoustic: 0.1, instr: 0.05, speech: 0.12, tempo: 124, tempoSpread: 8 }, pop: [45, 98], div: 'mid', overlap: 0.5 },
+  introspect: { f: { valence: 0.3, energy: 0.25, dance: 0.35, acoustic: 0.8, instr: 0.2, speech: 0.06, tempo: 92, tempoSpread: 10 }, pop: [5, 55], div: 'mid', overlap: 0.5 },
+  architect:  { f: { valence: 0.45, energy: 0.6, dance: 0.5, acoustic: 0.2, instr: 0.85, speech: 0.04, tempo: 128, tempoSpread: 45 }, pop: [15, 75], div: 'mid', overlap: 0.5 },
+  anarchist:  { f: { valence: 0.2, energy: 0.92, dance: 0.5, acoustic: 0.08, instr: 0.25, speech: 0.2, tempo: 150, tempoSpread: 50 }, pop: [20, 80], div: 'mid', overlap: 0.45 },
+  romantic:   { f: { valence: 0.85, energy: 0.4, dance: 0.45, acoustic: 0.78, instr: 0.1, speech: 0.05, tempo: 84, tempoSpread: 9 }, pop: [30, 90], div: 'mid', overlap: 0.55 },
+  zeitgeist:  { f: { valence: 0.65, energy: 0.7, dance: 0.72, acoustic: 0.15, instr: 0.05, speech: 0.14, tempo: 118, tempoSpread: 12 }, pop: [55, 99], div: 'mid', overlap: 0.15 },
+  ghost:      { f: { valence: 0.35, energy: 0.45, dance: 0.3, acoustic: 0.55, instr: 0.9, speech: 0.03, tempo: 100, tempoSpread: 14 }, pop: [3, 45], div: 'mid', overlap: 0.5 },
+  catalyst:   { f: { valence: 0.5, energy: 0.5, dance: 0.5, acoustic: 0.5, instr: 0.5, speech: 0.1, tempo: 120, tempoSpread: 22 }, pop: [35, 85], div: 'high', overlap: 0.5 },
 }
 
 export const PROFILE_IDS = Object.keys(PROFILES)
