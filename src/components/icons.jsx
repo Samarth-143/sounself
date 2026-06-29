@@ -100,3 +100,15 @@ export const Pause = ({ className, ...rest }) => (
     <rect x="14" y="5" width="4" height="14" rx="1" />
   </svg>
 )
+
+export const SkipBack = ({ className, ...rest }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" {...rest}>
+    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
+  </svg>
+)
+
+export const SkipForward = ({ className, ...rest }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" {...rest}>
+    <path d="M16 6h2v12h-2zm-3.5 6L4 18V6z" />
+  </svg>
+)

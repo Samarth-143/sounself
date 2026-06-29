@@ -1,8 +1,8 @@
-// NowPlaying.jsx — Spotify-style now-playing bar for SDK playback:
-// album cover + title/artist + a live, seekable progress bar.
+// NowPlaying.jsx — Spotify-style full player card:
+// large album art, centered info, seekable progress, and playback controls.
 
 import { useEffect, useState } from 'react'
-import { Play, Pause, Music } from './icons.jsx'
+import { Play, Pause, SkipBack, SkipForward, Music } from './icons.jsx'
 
 const fmt = (ms) => {
   const s = Math.max(0, Math.floor(ms / 1000))
@@ -10,7 +10,6 @@ const fmt = (ms) => {
 }
 
 export default function NowPlaying({ playback, accent, onToggle, onSeek }) {
-  // Local ticker so the bar advances smoothly between SDK state events.
   const [, force] = useState(0)
   useEffect(() => {
     const id = setInterval(() => force((n) => n + 1), 250)
@@ -29,50 +28,68 @@ export default function NowPlaying({ playback, accent, onToggle, onSeek }) {
   }
 
   return (
-    <div className="mt-3 flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
-      {/* album cover */}
-      <div
-        className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md bg-white/10"
-        style={{ boxShadow: `0 6px 18px -6px ${accent}88` }}
-      >
+    <div className="flex flex-col">
+      {/* Album art */}
+      <div className="mx-auto mb-6 aspect-square w-full max-w-[280px] overflow-hidden rounded-lg bg-white/5 shadow-2xl">
         {image ? (
           <img src={image} alt="" className="h-full w-full object-cover" />
         ) : (
-          <Music className="h-5 w-5 text-ash" />
+          <div className="flex h-full w-full items-center justify-center">
+            <Music className="h-16 w-16 text-ash/30" />
+          </div>
         )}
       </div>
 
-      {/* play / pause */}
-      <button
-        onClick={onToggle}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition hover:brightness-110"
-        style={{ background: accent, color: '#070707' }}
-        aria-label={paused ? 'Play' : 'Pause'}
-      >
-        {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-      </button>
+      {/* Track info */}
+      <div className="mb-5 px-2 text-center">
+        <div className="truncate text-base font-semibold text-bone">{name || '—'}</div>
+        <div className="mt-1 truncate text-sm text-ash">{artist}</div>
+      </div>
 
-      {/* info + progress */}
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium text-bone">{name || '—'}</div>
-        <div className="mb-1.5 truncate text-xs text-ash">{artist}</div>
-        <div className="flex items-center gap-2">
-          <span className="w-9 shrink-0 text-right text-[10px] tabular-nums text-ash">{fmt(elapsed)}</span>
+      {/* Progress bar */}
+      <div className="mb-5 flex items-center gap-3 px-4">
+        <span className="w-10 shrink-0 text-right text-xs tabular-nums text-ash">{fmt(elapsed)}</span>
+        <div
+          className="group relative h-1 flex-1 cursor-pointer rounded-full bg-white/15"
+          onClick={handleSeek}
+        >
           <div
-            className="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-white/12"
-            onClick={handleSeek}
-          >
-            <div
-              className="absolute inset-y-0 left-0 rounded-full"
-              style={{ width: `${pct}%`, background: accent }}
-            />
-            <div
-              className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 transition group-hover:opacity-100"
-              style={{ left: `${pct}%`, background: accent }}
-            />
-          </div>
-          <span className="w-9 shrink-0 text-[10px] tabular-nums text-ash">{fmt(duration)}</span>
+            className="absolute inset-y-0 left-0 rounded-full bg-bone"
+            style={{ width: `${pct}%` }}
+          />
+          <div
+            className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-bone opacity-0 shadow-lg transition group-hover:opacity-100"
+            style={{ left: `${pct}%` }}
+          />
         </div>
+        <span className="w-10 shrink-0 text-left text-xs tabular-nums text-ash">{fmt(duration)}</span>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-center gap-8">
+        <button
+          onClick={() => onSeek && onSeek(Math.max(0, position - 15000))}
+          className="flex items-center justify-center text-bone transition hover:scale-110"
+          aria-label="Previous"
+        >
+          <SkipBack className="h-6 w-6" />
+        </button>
+
+        <button
+          onClick={onToggle}
+          className="flex h-16 w-16 items-center justify-center rounded-full bg-bone text-black transition hover:scale-105 active:scale-95"
+          aria-label={paused ? 'Play' : 'Pause'}
+        >
+          {paused ? <Play className="h-7 w-7 pl-0.5" /> : <Pause className="h-7 w-7" />}
+        </button>
+
+        <button
+          onClick={() => onSeek && onSeek(Math.min(duration, position + 15000))}
+          className="flex items-center justify-center text-bone transition hover:scale-110"
+          aria-label="Next"
+        >
+          <SkipForward className="h-6 w-6" />
+        </button>
       </div>
     </div>
   )

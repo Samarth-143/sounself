@@ -162,7 +162,7 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
               transition={{ duration: 0.3 }}
               className="w-full md:w-[45%]"
             >
-              <div className="flex h-full flex-col justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
+              <div className="flex h-full flex-col justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] p-5">
                 {useSdk && !error && player.playback ? (
                   <NowPlaying
                     playback={player.playback}
@@ -172,7 +172,7 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
                   />
                 ) : (
                   <>
-                    <div className="p-4">
+                    <div className="flex flex-col items-center">
                       <iframe
                         title="Spotify player"
                         src={`https://open.spotify.com/embed/track/${list[selected].id}?utm_source=soundself&theme=0`}
@@ -184,7 +184,7 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
                         style={{ borderRadius: 12 }}
                       />
                     </div>
-                    <p className="mb-3 text-center text-[10px] uppercase tracking-[0.18em] text-ash/60">
+                    <p className="mt-3 text-center text-[10px] uppercase tracking-[0.18em] text-ash/60">
                       {isDemo
                         ? 'Demo audio · full playback uses your library in live mode'
                         : 'Preview player · reconnect with Premium for full tracks'}
