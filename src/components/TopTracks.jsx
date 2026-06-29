@@ -67,6 +67,15 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
   const isRowPlaying = (i) =>
     useSdk ? selected === i && player.playback && !player.playback.paused : selected === i
 
+  const handlePrev = async () => {
+    if (selected === null || selected <= 0) return
+    await handleSelect(selected - 1)
+  }
+  const handleNext = async () => {
+    if (selected === null || selected >= list.length - 1) return
+    await handleSelect(selected + 1)
+  }
+
   return (
     <div className="mx-auto mt-10 w-full max-w-[1100px]">
       <div className="mb-3 flex items-center justify-between">
@@ -105,16 +114,7 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
             {list.map((t, i) => {
               const active = selected === i
               const playing = isRowPlaying(i)
-  const handlePrev = async () => {
-    if (selected === null || selected <= 0) return
-    await handleSelect(selected - 1)
-  }
-  const handleNext = async () => {
-    if (selected === null || selected >= list.length - 1) return
-    await handleSelect(selected + 1)
-  }
-
-  return (
+              return (
                 <button
                   key={`${t.id}-${i}`}
                   onClick={() => handleSelect(i)}
