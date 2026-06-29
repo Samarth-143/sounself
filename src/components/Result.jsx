@@ -1,7 +1,7 @@
 // Result.jsx — frames the card, adds the time-range toggle, share controls,
 // and (in demo mode) an archetype shuffle. Scales the fixed-size card to fit.
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import Card from './Card.jsx'
 import Share from './Share.jsx'
@@ -20,23 +20,25 @@ const RANGES = [
 const CARD_W = 1200
 const CARD_H = 675
 
-function ScaledCard({ children }) {
+function ScaledCard({ children, forceScale }) {
   const wrapRef = useRef(null)
-  const [scale, setScale] = useState(1)
+  const [responsiveScale, setResponsiveScale] = useState(1)
 
   useEffect(() => {
     const compute = () => {
       const w = wrapRef.current?.offsetWidth || CARD_W
-      setScale(Math.min(1, w / CARD_W))
+      setResponsiveScale(Math.min(1, w / CARD_W))
     }
     compute()
     window.addEventListener('resize', compute)
     return () => window.removeEventListener('resize', compute)
   }, [])
 
+  const currentScale = forceScale === true ? 1 : responsiveScale
+
   return (
-    <div ref={wrapRef} className="w-full" style={{ height: CARD_H * scale }}>
-      <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: CARD_W, height: CARD_H }}>
+    <div ref={wrapRef} className="w-full" style={{ height: CARD_H * currentScale }}>
+      <div style={{ transform: `scale(${currentScale})`, transformOrigin: 'top left', width: CARD_W, height: CARD_H }}>
         {children}
       </div>
     </div>
@@ -54,9 +56,14 @@ export default function Result({
   busyRange,
 }) {
   const cardRef = useRef(null)
-  const captureRef = useRef(null)
   const [capturing, setCapturing] = useState(false)
+  const [forceNativeSize, setForceNativeSize] = useState(false)
   const accent = analysis.archetype.palette.glow
+
+  const handleSetCapturing = useCallback((v) => {
+    setForceNativeSize(v)
+    setCapturing(v)
+  }, [])
 
   return (
     <div className="mx-auto w-full max-w-[1240px] px-5 py-10">
@@ -106,7 +113,7 @@ export default function Result({
         </div>
       </div>
 
-      {/* the card — visible scaled version */}
+      {/* the card */}
       <motion.div
         key={`${analysis.archetype.id}-${timeRange}`}
         initial={{ opacity: 0, y: 16, scale: 0.99 }}
@@ -115,32 +122,16 @@ export default function Result({
         className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl"
         style={{ boxShadow: `0 30px 80px -30px ${accent}55` }}
       >
-        <ScaledCard>
+        <ScaledCard forceScale={forceNativeSize}>
           <Card ref={cardRef} analysis={analysis} persona={persona} capturing={capturing} />
         </ScaledCard>
       </motion.div>
 
-      {/* hidden full-size card for clean html2canvas capture */}
-      <div
-        aria-hidden
-        style={{
-          position: 'fixed',
-          left: '-9999px',
-          top: 0,
-          width: CARD_W,
-          height: CARD_H,
-          zIndex: -1,
-          pointerEvents: 'none',
-        }}
-      >
-        <Card ref={captureRef} analysis={analysis} persona={persona} capturing={capturing} />
-      </div>
-
-      {/* share controls — capture the hidden full-size card */}
+      {/* share controls */}
       <div className="mt-8">
         <Share
-          cardRef={captureRef}
-          setCapturing={setCapturing}
+          cardRef={cardRef}
+          setCapturing={handleSetCapturing}
           fileBase={analysis.archetype.name}
           accent={accent}
         />

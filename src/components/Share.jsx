@@ -8,8 +8,8 @@ import { Download, Copy, Share2, Check, Loader2 } from './icons.jsx'
 
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
 
-export default function Share({ cardRef, setCapturing, fileBase = 'soundself', accent = '#ff5a3c' }) {
-  const [busy, setBusy] = useState(null) // 'download' | 'copy' | 'share'
+export default function Share({ cardRef, setCapturing, fileBase = 'soundself', accent = '#ff5a3c', onBeforeCapture, onAfterCapture }) {
+  const [busy, setBusy] = useState(null)
   const [done, setDone] = useState(null)
   const [error, setError] = useState('')
 
@@ -19,6 +19,7 @@ export default function Share({ cardRef, setCapturing, fileBase = 'soundself', a
   async function capture() {
     const node = cardRef.current
     if (!node) throw new Error('Card not ready yet.')
+    if (typeof onBeforeCapture === 'function') onBeforeCapture()
     setCapturing(true)
     await nextFrame()
     try {
@@ -35,6 +36,7 @@ export default function Share({ cardRef, setCapturing, fileBase = 'soundself', a
       )
     } finally {
       setCapturing(false)
+      if (typeof onAfterCapture === 'function') onAfterCapture()
     }
   }
 
