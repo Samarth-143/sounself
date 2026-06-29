@@ -66,10 +66,9 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
 
   const isRowPlaying = (i) =>
     useSdk ? selected === i && player.playback && !player.playback.paused : selected === i
-  const embedFallback = selected !== null && (!useSdk || !!error)
 
   return (
-    <div className="mx-auto mt-10 w-full max-w-[760px]">
+    <div className="mx-auto mt-10 w-full max-w-[1100px]">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Music className="h-4 w-4" style={{ color: accent }} />
@@ -99,94 +98,104 @@ export default function TopTracks({ tracks = [], accent = '#ff5a3c' }) {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
-        {list.map((t, i) => {
-          const active = selected === i
-          const playing = isRowPlaying(i)
-          return (
-            <button
-              key={`${t.id}-${i}`}
-              onClick={() => handleSelect(i)}
-              disabled={pending !== null}
-              className="flex w-full items-center gap-3 border-b border-white/[0.06] px-4 py-2.5 text-left transition last:border-b-0 hover:bg-white/[0.05] disabled:opacity-60"
-              style={active ? { background: 'rgba(255,255,255,0.06)' } : undefined}
+      <div className="flex flex-col gap-6 md:flex-row">
+        {/* Track list */}
+        <div className="w-full md:w-[55%]">
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
+            {list.map((t, i) => {
+              const active = selected === i
+              const playing = isRowPlaying(i)
+              return (
+                <button
+                  key={`${t.id}-${i}`}
+                  onClick={() => handleSelect(i)}
+                  disabled={pending !== null}
+                  className="flex w-full items-center gap-3 border-b border-white/[0.06] px-4 py-2.5 text-left transition last:border-b-0 hover:bg-white/[0.05] disabled:opacity-60"
+                  style={active ? { background: 'rgba(255,255,255,0.06)' } : undefined}
+                >
+                  <span className="w-5 shrink-0 text-center text-xs tabular-nums text-ash">{i + 1}</span>
+                  <span
+                    className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-white/10"
+                  >
+                    {t.image ? (
+                      <img src={t.image} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Music className="h-4 w-4 text-ash" />
+                    )}
+                  </span>
+                  <span
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition"
+                    style={{ background: active ? accent : 'rgba(255,255,255,0.08)', color: active ? '#070707' : accent }}
+                  >
+                    {pending === i ? (
+                      <Loader2 className="h-3 w-3 animate-spin-slow" />
+                    ) : playing ? (
+                      <Pause className="h-3 w-3" />
+                    ) : (
+                      <Play className="h-3 w-3" />
+                    )}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-bone">{t.name}</span>
+                    <span className="block truncate text-xs text-ash">{t.artist}</span>
+                  </span>
+                  {playing && (
+                    <span className="shrink-0 text-[10px] uppercase tracking-[0.16em]" style={{ color: accent }}>
+                      Playing
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+
+          {error && <p className="mt-2 text-center text-xs text-ember">{error}</p>}
+        </div>
+
+        {/* Player window */}
+        <AnimatePresence>
+          {selected !== null && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+              className="w-full md:w-[45%]"
             >
-              <span className="w-5 shrink-0 text-center text-xs tabular-nums text-ash">{i + 1}</span>
-              <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-white/10"
-              >
-                {t.image ? (
-                  <img src={t.image} alt="" className="h-full w-full object-cover" />
+              <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
+                {useSdk && !error && player.playback ? (
+                  <NowPlaying
+                    playback={player.playback}
+                    accent={accent}
+                    onToggle={player.toggle}
+                    onSeek={player.seek}
+                  />
                 ) : (
-                  <Music className="h-4 w-4 text-ash" />
+                  <>
+                    <div className="p-4">
+                      <iframe
+                        title="Spotify player"
+                        src={`https://open.spotify.com/embed/track/${list[selected].id}?utm_source=soundself&theme=0`}
+                        width="100%"
+                        height="152"
+                        frameBorder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                        style={{ borderRadius: 12 }}
+                      />
+                    </div>
+                    <p className="mb-3 text-center text-[10px] uppercase tracking-[0.18em] text-ash/60">
+                      {isDemo
+                        ? 'Demo audio · full playback uses your library in live mode'
+                        : 'Preview player · reconnect with Premium for full tracks'}
+                    </p>
+                  </>
                 )}
-              </span>
-              <span
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition"
-                style={{ background: active ? accent : 'rgba(255,255,255,0.08)', color: active ? '#070707' : accent }}
-              >
-                {pending === i ? (
-                  <Loader2 className="h-3 w-3 animate-spin-slow" />
-                ) : playing ? (
-                  <Pause className="h-3 w-3" />
-                ) : (
-                  <Play className="h-3 w-3" />
-                )}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-bone">{t.name}</span>
-                <span className="block truncate text-xs text-ash">{t.artist}</span>
-              </span>
-              {playing && (
-                <span className="shrink-0 text-[10px] uppercase tracking-[0.16em]" style={{ color: accent }}>
-                  Playing
-                </span>
-              )}
-            </button>
-          )
-        })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-
-      {error && <p className="mt-2 text-center text-xs text-ember">{error}</p>}
-
-      {/* SDK now-playing bar with cover + progress */}
-      {useSdk && !error && player.playback && selected !== null && (
-        <NowPlaying
-          playback={player.playback}
-          accent={accent}
-          onToggle={player.toggle}
-          onSeek={player.seek}
-        />
-      )}
-
-      {/* embed fallback (demo / no-premium / scope error) */}
-      <AnimatePresence>
-        {embedFallback && (
-          <motion.div
-            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-            animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
-            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <iframe
-              title="Spotify player"
-              src={`https://open.spotify.com/embed/track/${list[selected].id}?utm_source=soundself&theme=0`}
-              width="100%"
-              height="152"
-              frameBorder="0"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-              style={{ borderRadius: 12 }}
-            />
-            <p className="mt-2 text-center text-[10px] uppercase tracking-[0.18em] text-ash/60">
-              {isDemo
-                ? 'Demo audio · full playback uses your library in live mode'
-                : 'Preview player · reconnect with Premium for full tracks'}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }
