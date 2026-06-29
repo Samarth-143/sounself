@@ -16,7 +16,7 @@ npm run dev
 
 With no credentials, the app boots in **demo mode** using realistic mock data. Use the **Shuffle** button on the result screen to cycle through all ten archetypes.
 
-## Enabling the real Spotify flow (optional)
+## Enabling the real Spotify flow
 
 The app uses the **Authorization Code + PKCE** flow (no client secret — safe for a SPA).
 
