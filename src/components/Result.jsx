@@ -1,7 +1,7 @@
 // Result.jsx — frames the card, adds the time-range toggle, share controls,
 // and (in demo mode) an archetype shuffle. Scales the fixed-size card to fit.
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import Card from './Card.jsx'
 import Share from './Share.jsx'
@@ -53,8 +53,6 @@ export default function Result({
   configured,
   busyRange,
 }) {
-  const cardRef = useRef(null)
-  const [capturing, setCapturing] = useState(false)
   const accent = analysis.archetype.palette.glow
 
   return (
@@ -105,7 +103,7 @@ export default function Result({
         </div>
       </div>
 
-      {/* the card */}
+      {/* the card (visible, scaled to fit) */}
       <motion.div
         key={`${analysis.archetype.id}-${timeRange}`}
         initial={{ opacity: 0, y: 16, scale: 0.99 }}
@@ -115,18 +113,13 @@ export default function Result({
         style={{ boxShadow: `0 30px 80px -30px ${accent}55` }}
       >
         <ScaledCard>
-          <Card ref={cardRef} analysis={analysis} persona={persona} capturing={capturing} />
+          <Card analysis={analysis} persona={persona} capturing={false} />
         </ScaledCard>
       </motion.div>
 
-      {/* share controls */}
+      {/* share controls — renders the export directly via canvas, no DOM ref needed */}
       <div className="mt-8">
-        <Share
-          cardRef={cardRef}
-          setCapturing={setCapturing}
-          fileBase={analysis.archetype.name}
-          accent={accent}
-        />
+        <Share analysis={analysis} persona={persona} fileBase={analysis.archetype.name} accent={accent} />
         <p className="mt-4 text-center text-[11px] uppercase tracking-[0.2em] text-ash/60">
           Exports a 1200×675 PNG at 2× · watermarked
         </p>

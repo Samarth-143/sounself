@@ -66,17 +66,40 @@ export default function DonutChart({ genres = [], wheel = [], size = 160, stroke
         </text>
       </svg>
 
-      {/* contained legend */}
-      <div className="mt-3 grid w-full grid-cols-2 gap-x-3 gap-y-1">
-        {segments.map((s, i) => (
-          <div key={i} className="flex items-center gap-1.5 text-[10px] leading-tight">
-            <span className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: s.color }} />
-            <span className="min-w-0 flex-1 truncate" style={{ color: 'currentColor', opacity: 0.85 }}>
-              {s.name}
-            </span>
-            <span className="shrink-0 tabular-nums" style={{ color: s.color }}>
-              {s.pct}%
-            </span>
+      {/* contained legend — built as explicit paired rows using `margin`
+          for spacing, NOT the CSS `gap` property. html2canvas (1.4.x) does
+          not reliably support `gap` on flexbox: the browser renders spacing
+          correctly, but capture collapses rows onto each other because the
+          gap is silently dropped. Margin is the safe, well-supported
+          alternative for anything that gets captured to PNG. */}
+      <div className="mt-3 w-full">
+        {Array.from({ length: Math.ceil(segments.length / 2) }, (_, row) => (
+          <div key={row} className="flex" style={{ marginTop: row === 0 ? 0 : 4 }}>
+            {[0, 1].map((col) => {
+              const s = segments[row * 2 + col]
+              if (!s) return <div key={col} style={{ width: '50%' }} />
+              return (
+                <div
+                  key={col}
+                  className="flex items-center text-[10px] leading-tight"
+                  style={{ width: '50%', minWidth: 0, paddingRight: col === 0 ? 8 : 0 }}
+                >
+                  <span
+                    className="inline-block h-[7px] w-[7px] shrink-0 rounded-full"
+                    style={{ background: s.color, marginRight: 5 }}
+                  />
+                  <span
+                    className="truncate"
+                    style={{ color: 'currentColor', opacity: 0.85, flex: '1 1 auto', minWidth: 0, marginRight: 4 }}
+                  >
+                    {s.name}
+                  </span>
+                  <span className="shrink-0 tabular-nums" style={{ color: s.color }}>
+                    {s.pct}%
+                  </span>
+                </div>
+              )
+            })}
           </div>
         ))}
       </div>

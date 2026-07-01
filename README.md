@@ -58,7 +58,7 @@ To get the *real* audio-feature analysis you'd need a Spotify app that predates 
 - **Top tracks playback** — full-track in-app player via Spotify Web Playback SDK; preview-embed fallback for non-Premium accounts
 - **Now-playing bar** — live album art, elapsed/total time, click-to-seek progress
 - **Time-range toggle** — 4 Weeks / 6 Months / All Time
-- **Share export** — html2canvas retina PNG (2× scale), watermark-on-capture, download / clipboard copy / native Web Share
+- **Share export** — card drawn directly to a Canvas 2D retina PNG (2× scale) via `cardRenderer.js`, watermark on export only, download / clipboard copy / native Web Share
 - **Graceful degradation** — deterministic audio-feature estimator (`estimate.js`) when Spotify 403s `/audio-features`; marked with `EST.` badge on the card
 - **Persona generation** — deterministic alter-ego name + archetype-specific quote (`persona.js`)
 - **Dark-first UI** — grain-overlay atmosphere, Clash Display / Syne + IBM Plex Mono typography, fully responsive card scaler
@@ -76,8 +76,8 @@ src/
 │   ├── Landing.jsx             # Hero + Connect / Demo CTA
 │   ├── Loading.jsx             # Vinyl spinner with live status narration
 │   ├── Result.jsx              # Frame, time-range toggle, responsive card scaler
-│   ├── Card.jsx                # 1200×675 shareable card (forwardRef for capture)
-│   ├── Share.jsx               # html2canvas → PNG: download / copy / Web Share
+│   ├── Card.jsx                # 1200×675 shareable card (live DOM preview only)
+│   ├── Share.jsx               # Canvas-rendered PNG: download / copy / Web Share
 │   ├── DonutChart.jsx          # Custom SVG donut + legend (Genre or Artist DNA)
 │   ├── MoodSpectrum.jsx        # Animated 5-dimension mood bars
 │   ├── ListeningClock.jsx      # Radial 24-hour play-distribution chart
@@ -110,6 +110,8 @@ Classification is a **nearest-ideal** model: each archetype owns an ideal point 
 The Wanderer · The Ritualist · The Hedonist · The Introspect · The Architect · The Anarchist · The Romantic · The Zeitgeist · The Ghost · The Catalyst — each with an emoji, descriptor, ironic shadow trait, spirit artist, and a full color palette that recolors the entire card.
 
 ### Share export
-`html2canvas` captures the card node at `scale: 2` (retina) → 1200×675 PNG. A "MADE WITH ◐ SOUNDSELF" watermark is toggled on **only** during capture, so it appears in the export but not the live UI. Download works everywhere; Copy uses the Clipboard API; the native **Web Share** sheet appears when `navigator.canShare({ files })` is supported (mobile).
+The card is drawn directly with the **Canvas 2D API** (`lib/cardRenderer.js`) rather than captured from the DOM. Every element's position — the archetype title, DNA legend, mood bars, stat grid — is set explicitly in code, so the exported 1200×675 (2× retina) PNG is guaranteed to match the intended layout with no possibility of DOM-vs-export drift. A "MADE WITH ◐ SOUNDSELF" watermark is added only to the exported canvas, never the live UI. Download works everywhere; Copy uses the Clipboard API; the native **Web Share** sheet appears when `navigator.canShare({ files })` is supported (mobile).
+
+We initially used `html2canvas` to capture the live card DOM node, but it repeatedly mispositioned nested elements in the export (grid rows, flex `gap`, transformed ancestors) even though the on-page card always rendered correctly — three distinct root causes in one component. Rendering directly to canvas removes that failure class entirely.
 
 

@@ -2,7 +2,7 @@
 // recolors entirely from the archetype palette. Forwards a ref so the
 // export pipeline can capture exactly this node.
 
-import { forwardRef, useState } from 'react'
+import { useState } from 'react'
 import DonutChart from './DonutChart.jsx'
 import MoodSpectrum from './MoodSpectrum.jsx'
 import ListeningClock from './ListeningClock.jsx'
@@ -22,8 +22,7 @@ const STAT_INFO = {
   Vintage: 'The median release year of your top tracks — the era your taste lives in.',
 }
 
-// hex -> rgba string. html2canvas (1.4.x) is unreliable parsing 8-digit hex,
-// so all translucent fills are built explicitly here.
+// hex -> rgba string helper for translucent fills.
 function rgba(hex, a) {
   const h = hex.replace('#', '')
   const r = parseInt(h.slice(0, 2), 16)
@@ -32,10 +31,7 @@ function rgba(hex, a) {
   return `rgba(${r}, ${g}, ${b}, ${a})`
 }
 
-const Card = forwardRef(function Card(
-  { analysis, persona, capturing = false, format = 'landscape' },
-  ref
-) {
+export default function Card({ analysis, persona, capturing = false, format = 'landscape' }) {
   const { archetype, genres, mood, displayName, timeRange, signatureTracks, blend, stats, clock } = analysis
   const dnaLabel = analysis.dnaMode === 'artist' ? 'Artist DNA' : 'Genre DNA'
   const shortName = (n) => n.replace(/^The\s+/, '')
@@ -46,7 +42,6 @@ const Card = forwardRef(function Card(
 
   return (
     <div
-      ref={ref}
       className="card-grain relative overflow-hidden"
       style={{
         ...size,
@@ -182,55 +177,65 @@ const Card = forwardRef(function Card(
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              {stats.map((s) => {
-                const open = !capturing && openStat === s.label
-                return (
-                  <div
-                    key={s.label}
-                    className="relative rounded-lg px-3 py-2 transition-colors"
-                    style={{
-                      background: open ? rgba(p.glow, 0.1) : 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${open ? rgba(p.glow, 0.5) : 'rgba(255,255,255,0.08)'}`,
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={() => setOpenStat(s.label)}
-                    onMouseLeave={() => setOpenStat((cur) => (cur === s.label ? null : cur))}
-                    onClick={() => setOpenStat((cur) => (cur === s.label ? null : s.label))}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="font-display text-xl font-semibold leading-none" style={{ color: p.ink }}>
-                        {s.value}
-                      </div>
-                      <span
-                        className="flex h-3 w-3 items-center justify-center rounded-full text-[8px] leading-none"
-                        style={{ border: `1px solid ${rgba(p.ink, 0.3)}`, opacity: 0.6 }}
-                      >
-                        i
-                      </span>
-                    </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] opacity-55">{s.label}</div>
-
-                    {open && (
+            {/* explicit paired rows with `margin` spacing, not CSS `gap`
+                or grid — see DonutChart.jsx comment for why. */}
+            <div className="w-full">
+              {[0, 1].map((row) => (
+                <div key={row} className="flex" style={{ marginTop: row === 0 ? 0 : 8 }}>
+                  {[0, 1].map((col) => {
+                    const s = stats[row * 2 + col]
+                    if (!s) return <div key={col} style={{ width: '50%' }} />
+                    const open = !capturing && openStat === s.label
+                    return (
                       <div
-                        className="absolute z-30 w-[210px] rounded-lg p-3 text-left shadow-2xl"
+                        key={col}
+                        className="relative rounded-lg px-3 py-2 transition-colors"
                         style={{
-                          bottom: 'calc(100% + 8px)',
-                          right: 0,
-                          background: '#0c0c0f',
-                          border: `1px solid ${rgba(p.glow, 0.45)}`,
-                          color: p.ink,
+                          width: 'calc(50% - 4px)',
+                          marginRight: col === 0 ? 8 : 0,
+                          background: open ? rgba(p.glow, 0.1) : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${open ? rgba(p.glow, 0.5) : 'rgba(255,255,255,0.08)'}`,
+                          cursor: 'pointer',
                         }}
+                        onMouseEnter={() => setOpenStat(s.label)}
+                        onMouseLeave={() => setOpenStat((cur) => (cur === s.label ? null : cur))}
+                        onClick={() => setOpenStat((cur) => (cur === s.label ? null : s.label))}
                       >
-                        <div className="font-display text-sm font-semibold" style={{ color: p.glow }}>
-                          {s.label}
+                        <div className="flex items-start justify-between">
+                          <div className="font-display text-xl font-semibold leading-none" style={{ color: p.ink }}>
+                            {s.value}
+                          </div>
+                          <span
+                            className="flex h-3 w-3 items-center justify-center rounded-full text-[8px] leading-none"
+                            style={{ border: `1px solid ${rgba(p.ink, 0.3)}`, opacity: 0.6 }}
+                          >
+                            i
+                          </span>
                         </div>
-                        <p className="mt-1 text-[11px] leading-snug opacity-80">{STAT_INFO[s.label]}</p>
+                        <div className="mt-1 text-[9px] uppercase tracking-[0.16em] opacity-55">{s.label}</div>
+
+                        {open && (
+                          <div
+                            className="absolute z-30 w-[210px] rounded-lg p-3 text-left shadow-2xl"
+                            style={{
+                              bottom: 'calc(100% + 8px)',
+                              right: 0,
+                              background: '#0c0c0f',
+                              border: `1px solid ${rgba(p.glow, 0.45)}`,
+                              color: p.ink,
+                            }}
+                          >
+                            <div className="font-display text-sm font-semibold" style={{ color: p.glow }}>
+                              {s.label}
+                            </div>
+                            <p className="mt-1 text-[11px] leading-snug opacity-80">{STAT_INFO[s.label]}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )
-              })}
+                    )
+                  })}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -245,6 +250,4 @@ const Card = forwardRef(function Card(
       </div>
     </div>
   )
-})
-
-export default Card
+}

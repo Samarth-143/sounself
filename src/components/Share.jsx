@@ -1,17 +1,20 @@
-// Share.jsx — capture the card node to a retina PNG and offer
-// Download / Copy / native Share. Watermark is toggled on only for capture.
+// Share.jsx — renders the card directly to a canvas (see cardRenderer.js)
+// and offers Download / Copy / native Share on the resulting PNG.
+//
+// This intentionally does NOT use html2canvas. html2canvas re-derives layout
+// from the live DOM and repeatedly mispositioned nested elements in the
+// exported PNG (grid rows, flex `gap`, transformed ancestors) even though
+// the on-page card always rendered correctly — three distinct root causes
+// surfaced in this one component. Drawing the card directly with Canvas 2D
+// (cardRenderer.js) removes that entire failure class: every position is a
+// number we set in code, so DOM-vs-export drift is structurally impossible.
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import html2canvas from 'html2canvas'
 import { Download, Copy, Share2, Check, Loader2 } from './icons.jsx'
+import { renderCardBlob } from '../lib/cardRenderer.js'
 
-const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
-
-const CARD_W = 1200
-const CARD_H = 675
-
-export default function Share({ cardRef, setCapturing, fileBase = 'soundself', accent = '#ff5a3c' }) {
+export default function Share({ analysis, persona, fileBase = 'soundself', accent = '#ff5a3c' }) {
   const [busy, setBusy] = useState(null)
   const [done, setDone] = useState(null)
   const [error, setError] = useState('')
@@ -20,33 +23,7 @@ export default function Share({ cardRef, setCapturing, fileBase = 'soundself', a
     typeof navigator !== 'undefined' && !!navigator.canShare && !!navigator.share
 
   async function capture() {
-    const node = cardRef.current
-    if (!node) throw new Error('Card not ready yet.')
-    setCapturing(true)
-    await nextFrame()
-    try {
-      const canvas = await html2canvas(node, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-        logging: false,
-        width: CARD_W,
-        height: CARD_H,
-        onclone: (clonedDoc, clonedNode) => {
-          const wrap = clonedNode.parentElement
-          if (wrap) {
-            wrap.style.transform = 'none'
-            wrap.style.width = `${CARD_W}px`
-            wrap.style.height = `${CARD_H}px`
-          }
-        },
-      })
-      return await new Promise((resolve, reject) =>
-        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not encode PNG.'))), 'image/png')
-      )
-    } finally {
-      setCapturing(false)
-    }
+    return renderCardBlob(analysis, persona, { scale: 2, watermark: true })
   }
 
   function flash(kind) {
